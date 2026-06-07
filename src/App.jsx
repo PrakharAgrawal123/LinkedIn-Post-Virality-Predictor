@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Landing from './pages/Landing';
 import Analyser from './pages/Analyser';
@@ -8,6 +9,30 @@ import History from './pages/History';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import useAnalyser from './hooks/useAnalyser';
+
+function AppRoutes({ user, analyser, handleLogin }) {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Landing analyser={analyser} user={user} />} />
+        <Route path="/analyse" element={<Analyser analyser={analyser} user={user} />} />
+        <Route path="/dashboard" element={<Dashboard analyser={analyser} user={user} />} />
+        <Route path="/history" element={<History analyser={analyser} user={user} />} />
+        
+        <Route 
+          path="/login" 
+          element={user ? <Navigate to="/analyse" /> : <Login onLogin={handleLogin} />} 
+        />
+        <Route 
+          path="/signup" 
+          element={user ? <Navigate to="/analyse" /> : <Signup onLogin={handleLogin} />} 
+        />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
 
 export default function App() {
   const [user, setUser] = useState(() => {
@@ -37,22 +62,7 @@ export default function App() {
         <Navbar user={user} onLogout={handleLogout} />
         
         <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Landing analyser={analyser} user={user} />} />
-            <Route path="/analyse" element={<Analyser analyser={analyser} user={user} />} />
-            <Route path="/dashboard" element={<Dashboard analyser={analyser} user={user} />} />
-            <Route path="/history" element={<History analyser={analyser} user={user} />} />
-            
-            <Route 
-              path="/login" 
-              element={user ? <Navigate to="/analyse" /> : <Login onLogin={handleLogin} />} 
-            />
-            <Route 
-              path="/signup" 
-              element={user ? <Navigate to="/analyse" /> : <Signup onLogin={handleLogin} />} 
-            />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
+          <AppRoutes user={user} analyser={analyser} handleLogin={handleLogin} />
         </main>
       </div>
     </Router>

@@ -1,15 +1,28 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Menu, X, Sun, Moon, LogOut, User } from 'lucide-react';
+import { Zap, Menu, X, Sun, Moon, LogOut } from 'lucide-react';
 
 export default function Navbar({ user, onLogout }) {
   const [isOpen, setIsOpen] = useState(false);
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('viralscore_theme') || 'light';
+    return localStorage.getItem('viralscore_theme') || 'dark';
   });
+  const [scrolled, setScrolled] = useState(false);
   
   const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Handle setting dark mode class on root HTML element
   useEffect(() => {
@@ -36,17 +49,35 @@ export default function Navbar({ user, onLogout }) {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/80 backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-950/80 transition-colors duration-300">
+    <nav 
+      className="sticky top-0 z-50 w-full transition-all duration-400 ease"
+      style={scrolled ? {
+        background: "rgba(7, 7, 15, 0.8)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
+        boxShadow: "0 4px 30px rgba(0, 0, 0, 0.3)"
+      } : {
+        background: "transparent",
+        borderBottom: "none"
+      }}
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 group">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
+            <div 
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-200"
+              style={{ animation: "logoPulse 3s ease-in-out infinite" }}
+            >
               <Zap className="h-5 w-5 fill-current animate-float-fast" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Viral<span className="text-blue-600">Score</span>
+            <span 
+              className="text-xl font-bold tracking-tight gradient-text"
+              style={{ animation: "logoPulse 3s ease-in-out infinite" }}
+            >
+              ViralScore
             </span>
           </Link>
 
@@ -56,15 +87,29 @@ export default function Navbar({ user, onLogout }) {
               <Link
                 key={link.name}
                 to={link.path}
-                className="relative px-1 py-2 text-sm font-medium transition-colors"
+                className="relative px-1 py-2 text-sm font-medium transition-colors duration-200"
               >
-                <span className={isActive(link.path) ? "text-blue-600 dark:text-blue-400 font-semibold" : "text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-100"}>
+                <span 
+                  className="transition-colors duration-200"
+                  style={{
+                    color: isActive(link.path) ? "rgba(255, 255, 255, 1)" : "rgba(255, 255, 255, 0.6)",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive(link.path)) e.target.style.color = "rgba(255, 255, 255, 1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive(link.path)) e.target.style.color = "rgba(255, 255, 255, 0.6)";
+                  }}
+                >
                   {link.name}
                 </span>
                 {isActive(link.path) && (
                   <motion.div
-                    layoutId="navbar-underline"
-                    className="absolute bottom-0 left-0 h-0.5 w-full bg-blue-600 dark:bg-blue-400"
+                    layoutId="activeLink"
+                    className="absolute bottom-0 left-0 h-0.5 w-full bg-[#6366F1]"
+                    style={{
+                      filter: "drop-shadow(0 2px 4px rgba(99, 102, 241, 0.8))"
+                    }}
                     transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                   />
                 )}
@@ -77,24 +122,24 @@ export default function Navbar({ user, onLogout }) {
             {/* Dark Mode Toggle */}
             <button
               onClick={toggleTheme}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-900 transition-colors"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-350 hover:bg-white/10 transition-colors cursor-pointer"
               aria-label="Toggle theme"
             >
               {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5 text-amber-400" />}
             </button>
 
             {user ? (
-              <div className="flex items-center space-x-3 pl-2 border-l border-slate-200 dark:border-slate-800">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 font-semibold text-sm">
+              <div className="flex items-center space-x-3 pl-2 border-l border-white/10">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10 text-[#A5B4FC] font-semibold text-sm border border-indigo-500/20">
                   {user.initials}
                 </div>
                 <div className="text-left hidden lg:block">
-                  <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">{user.name}</div>
-                  <div className="text-[10px] text-slate-500">{user.email}</div>
+                  <div className="text-xs font-semibold text-white/90">{user.name}</div>
+                  <div className="text-[10px] text-white/50">{user.email}</div>
                 </div>
                 <button
                   onClick={onLogout}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
                   title="Logout"
                 >
                   <LogOut className="h-4 w-4" />
@@ -104,13 +149,13 @@ export default function Navbar({ user, onLogout }) {
               <div className="flex items-center space-x-3">
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-950 dark:text-slate-300 dark:hover:text-white transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors"
                 >
                   Login
                 </Link>
                 <Link
                   to="/signup"
-                  className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-md shadow-blue-500/10 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/20 dark:shadow-none hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  className="rounded-xl btn-glow px-4 py-2 text-sm font-medium transition-all"
                 >
                   Sign Up
                 </Link>
@@ -122,14 +167,14 @@ export default function Navbar({ user, onLogout }) {
           <div className="flex items-center space-x-3 md:hidden">
             <button
               onClick={toggleTheme}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 dark:border-slate-800 dark:text-slate-400 transition-colors"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-slate-350 transition-colors"
             >
               {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4 text-amber-400" />}
             </button>
             
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 dark:border-slate-800 dark:text-slate-400 transition-colors"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-slate-350 transition-colors"
             >
               {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -146,7 +191,7 @@ export default function Navbar({ user, onLogout }) {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="md:hidden border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 px-4 py-4 space-y-3"
+            className="md:hidden border-t border-white/5 bg-[#07070F]/95 backdrop-blur-lg px-4 py-4 space-y-3"
           >
             <div className="flex flex-col space-y-2">
               {navLinks.map((link) => (
@@ -156,8 +201,8 @@ export default function Navbar({ user, onLogout }) {
                   onClick={() => setIsOpen(false)}
                   className={`block rounded-lg px-3 py-2 text-base font-medium transition-colors ${
                     isActive(link.path)
-                      ? 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                      ? 'bg-indigo-500/10 text-[#A5B4FC] border-l-2 border-[#6366F1]'
+                      : 'text-white/60 hover:bg-white/5 hover:text-white'
                   }`}
                 >
                   {link.name}
@@ -165,16 +210,16 @@ export default function Navbar({ user, onLogout }) {
               ))}
             </div>
 
-            <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
+            <div className="pt-4 border-t border-white/5">
               {user ? (
                 <div className="flex items-center justify-between px-3">
                   <div className="flex items-center space-x-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 font-semibold">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-[#A5B4FC] font-semibold border border-indigo-500/20">
                       {user.initials}
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">{user.name}</div>
-                      <div className="text-xs text-slate-500">{user.email}</div>
+                      <div className="text-sm font-semibold text-white/90">{user.name}</div>
+                      <div className="text-xs text-white/50">{user.email}</div>
                     </div>
                   </div>
                   <button
@@ -182,7 +227,7 @@ export default function Navbar({ user, onLogout }) {
                       onLogout();
                       setIsOpen(false);
                     }}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50 text-red-500 dark:bg-red-950/20 transition-all"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-500/10 text-red-400 transition-all"
                   >
                     <LogOut className="h-4 w-4" />
                   </button>
@@ -192,14 +237,14 @@ export default function Navbar({ user, onLogout }) {
                   <Link
                     to="/login"
                     onClick={() => setIsOpen(false)}
-                    className="flex h-10 items-center justify-center rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900"
+                    className="flex h-10 items-center justify-center rounded-lg border border-white/10 text-sm font-medium text-white/80 hover:bg-white/5"
                   >
                     Login
                   </Link>
                   <Link
                     to="/signup"
                     onClick={() => setIsOpen(false)}
-                    className="flex h-10 items-center justify-center rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 shadow-md shadow-blue-500/10"
+                    className="flex h-10 items-center justify-center rounded-lg btn-glow text-sm font-medium"
                   >
                     Sign Up
                   </Link>

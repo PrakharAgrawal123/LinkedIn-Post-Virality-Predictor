@@ -9,26 +9,57 @@ export default function SentenceChip({ sentence }) {
     switch (type) {
       case 'hook':
         return {
-          wrapper: 'bg-emerald-50 text-emerald-950 border-emerald-200/80 hover:bg-emerald-100/70 dark:bg-emerald-950/20 dark:text-emerald-300 dark:border-emerald-900/50',
-          badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300',
+          style: {
+            background: "rgba(99, 102, 241, 0.1)",
+            border: "1px solid rgba(99, 102, 241, 0.3)",
+            color: "#A5B4FC"
+          },
+          hoverStyle: {
+            boxShadow: "0 0 16px rgba(99, 102, 241, 0.25)",
+            borderColor: "rgba(99, 102, 241, 0.5)"
+          },
+          badge: 'bg-[#6366F1]/20 text-[#A5B4FC]',
           desc: 'Hook Sentence: This line stands out, hooks attention immediately, and drives curiosity to click "see more".'
         };
       case 'weak':
         return {
-          wrapper: 'bg-rose-50 text-rose-950 border-rose-200/80 hover:bg-rose-100/70 dark:bg-rose-950/20 dark:text-rose-300 dark:border-rose-900/50',
-          badge: 'bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-300',
+          style: {
+            background: "rgba(239, 68, 68, 0.1)",
+            border: "1px solid rgba(239, 68, 68, 0.3)",
+            color: "#FCA5A5"
+          },
+          hoverStyle: {
+            boxShadow: "0 0 16px rgba(239, 68, 68, 0.25)",
+            borderColor: "rgba(239, 68, 68, 0.5)"
+          },
+          badge: 'bg-[#EF4444]/20 text-[#FCA5A5]',
           desc: 'Weak Jargon: Contains cliché corporate terminology or filler words. Rewrite this to make it punchier.'
         };
       case 'engaging':
         return {
-          wrapper: 'bg-blue-50 text-blue-950 border-blue-200/80 hover:bg-blue-100/70 dark:bg-blue-950/20 dark:text-blue-300 dark:border-blue-900/50',
-          badge: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
+          style: {
+            background: "rgba(16, 185, 129, 0.1)",
+            border: "1px solid rgba(16, 185, 129, 0.3)",
+            color: "#6EE7B7"
+          },
+          hoverStyle: {
+            boxShadow: "0 0 16px rgba(16, 185, 129, 0.25)",
+            borderColor: "rgba(16, 185, 129, 0.5)"
+          },
+          badge: 'bg-[#10B981]/20 text-[#6EE7B7]',
           desc: 'Engaging Line: Asks questions or prompts replies, helping satisfy the LinkedIn algorithm to boost reach.'
         };
       default:
         return {
-          wrapper: 'bg-slate-50 text-slate-800 border-slate-200/80 hover:bg-slate-100/70 dark:bg-slate-900/30 dark:text-slate-300 dark:border-slate-800/60',
-          badge: 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-400',
+          style: {
+            background: "rgba(255, 255, 255, 0.04)",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            color: "rgba(255, 255, 255, 0.5)"
+          },
+          hoverStyle: {
+            borderColor: "rgba(255, 255, 255, 0.2)"
+          },
+          badge: 'bg-white/5 text-white/50',
           desc: 'Neutral Sentence: Standard narrative or context. Clean, but has moderate impact.'
         };
     }
@@ -38,8 +69,13 @@ export default function SentenceChip({ sentence }) {
 
   return (
     <motion.div
-      whileHover={{ scale: 1.01, y: -1 }}
-      className={`relative flex flex-col md:flex-row items-start md:items-center justify-between gap-3 p-3.5 rounded-2xl border text-sm font-medium leading-relaxed transition-all duration-300 select-none ${styles.wrapper}`}
+      whileHover={{ 
+        scale: 1.03, 
+        y: -2,
+        ...styles.hoverStyle
+      }}
+      style={styles.style}
+      className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-3 p-3.5 rounded-2xl text-sm font-medium leading-relaxed transition-all duration-305 select-none"
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
@@ -51,7 +87,7 @@ export default function SentenceChip({ sentence }) {
         <span className={`inline-flex items-center rounded-lg px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider ${styles.badge}`}>
           {sentence.label}
         </span>
-        <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-help" aria-label="Sentence explanation">
+        <button className="text-white/40 hover:text-white cursor-help" aria-label="Sentence explanation">
           <HelpCircle className="h-4 w-4 shrink-0" />
         </button>
       </div>
@@ -64,12 +100,12 @@ export default function SentenceChip({ sentence }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute bottom-full right-4 z-40 mb-2 w-72 rounded-xl bg-slate-900 dark:bg-slate-800 p-3 text-xs leading-normal text-white shadow-xl pointer-events-none"
+            className="absolute bottom-full right-4 z-40 mb-2 w-72 rounded-xl bg-slate-900 border border-white/10 p-3 text-xs leading-normal text-white shadow-xl pointer-events-none"
           >
-            <div className="font-semibold text-blue-400 mb-1">{sentence.label} Analysis</div>
-            <p>{styles.desc}</p>
+            <div className="font-semibold text-indigo-400 mb-1">{sentence.label} Analysis</div>
+            <p className="text-white/80">{styles.desc}</p>
             {/* Small arrow */}
-            <div className="absolute top-full right-6 -mt-1 h-2.5 w-2.5 rotate-45 bg-slate-900 dark:bg-slate-800" />
+            <div className="absolute top-full right-6 -mt-1 h-2.5 w-2.5 rotate-45 bg-slate-900 border-r border-b border-white/10" />
           </motion.div>
         )}
       </AnimatePresence>

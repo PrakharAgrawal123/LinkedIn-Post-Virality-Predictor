@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Zap, Mail, Lock, ShieldAlert } from 'lucide-react';
+import FloatingOrbs from '../components/FloatingOrbs';
 
 export default function Login({ onLogin }) {
   const [email, setEmail] = useState('');
@@ -9,6 +10,9 @@ export default function Login({ onLogin }) {
   const [error, setError] = useState('');
   const [shake, setShake] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
 
   const navigate = useNavigate();
 
@@ -57,28 +61,50 @@ export default function Login({ onLogin }) {
     }
   };
 
+  const pageVariants = {
+    initial: { opacity: 0, y: 30, scale: 0.98, filter: "blur(4px)" },
+    animate: { 
+      opacity: 1, y: 0, scale: 1, filter: "blur(0px)",
+      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+    },
+    exit: { 
+      opacity: 0, y: -20, scale: 1.02, filter: "blur(4px)",
+      transition: { duration: 0.3, ease: "easeIn" }
+    }
+  };
+
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12 overflow-hidden">
-      
-      {/* Dynamic drifting background shapes */}
-      <div className="absolute top-1/4 left-1/4 -z-10 h-72 w-72 rounded-full bg-blue-500/10 blur-[80px] animate-float-slow" />
-      <div className="absolute bottom-1/4 right-1/4 -z-10 h-80 w-80 rounded-full bg-indigo-500/10 blur-[80px] animate-float-slower" />
+    <motion.div
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      style={{ position: "relative", overflow: "hidden" }}
+      className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12"
+    >
+      <FloatingOrbs />
 
       {/* Main card box */}
       <motion.div
         animate={shake ? 'shake' : ''}
         variants={shakeVariants}
-        className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 dark:border-slate-800 dark:bg-slate-900 shadow-xl"
+        className="w-full max-w-md glass-card"
       >
         {/* Brand Logo Header */}
         <div className="text-center mb-8">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-500/20 mb-4">
-            <Zap className="h-6 w-6 fill-current" />
+          <div 
+            className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white shadow-lg shadow-indigo-500/20 mb-3"
+            style={{ animation: "logoPulse 3s ease-in-out infinite" }}
+          >
+            <Zap className="h-6 w-6 fill-current animate-float-fast" />
           </div>
-          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+          <div className="flex justify-center items-center gap-2 mb-2">
+            <span className="text-xl font-bold tracking-tight gradient-text" style={{ animation: "logoPulse 3s ease-in-out infinite" }}>ViralScore</span>
+          </div>
+          <h2 className="text-2xl font-extrabold tracking-tight text-white mt-2">
             Welcome back
           </h2>
-          <p className="text-0.8rem text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-white/50 mt-1">
             Access your creator dashboard to optimize your posts.
           </p>
         </div>
@@ -88,7 +114,7 @@ export default function Login({ onLogin }) {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex items-start space-x-2 rounded-xl bg-red-50 text-red-800 p-3 text-xs font-semibold dark:bg-red-950/20 dark:text-red-400 mb-6 border border-red-150/40 dark:border-red-900/30"
+            className="flex items-start space-x-2 rounded-xl bg-red-500/10 text-red-400 p-3 text-xs font-semibold mb-6 border border-red-500/20"
           >
             <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" />
             <span>{error}</span>
@@ -96,53 +122,67 @@ export default function Login({ onLogin }) {
         )}
 
         {/* Input Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Email Address */}
+          <div className="relative pt-3">
+            <label 
+              className={`absolute left-9 transition-all duration-200 pointer-events-none uppercase tracking-wider font-bold ${
+                emailFocused || email 
+                  ? 'top-[-8px] text-[11px] text-[#6366F1]' 
+                  : 'top-[13px] text-[13px] text-white/50'
+              }`}
+            >
               Email Address
             </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                <Mail className="h-4 w-4" />
-              </span>
-              <input
-                type="text"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:border-blue-500 dark:border-slate-800 dark:bg-slate-900 focus:ring-1 focus:ring-blue-500/10 focus:outline-none transition-all placeholder-slate-400"
-              />
-            </div>
+            <span className="absolute top-[17px] left-3 text-white/40">
+              <Mail className="h-4 w-4" />
+            </span>
+            <input
+              type="text"
+              value={email}
+              onFocus={() => setEmailFocused(true)}
+              onBlur={() => setEmailFocused(false)}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={(emailFocused || email) ? "you@example.com" : ""}
+              className="w-full pl-9 pr-4 py-2.5 glass-input text-sm text-white/90 placeholder:text-white/25 focus:outline-none"
+            />
           </div>
 
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+          {/* Password */}
+          <div className="relative pt-3">
+            <label 
+              className={`absolute left-9 transition-all duration-200 pointer-events-none uppercase tracking-wider font-bold ${
+                passwordFocused || password 
+                  ? 'top-[-8px] text-[11px] text-[#6366F1]' 
+                  : 'top-[13px] text-[13px] text-white/50'
+              }`}
+            >
               Password
             </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                <Lock className="h-4 w-4" />
-              </span>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:border-blue-500 dark:border-slate-800 dark:bg-slate-900 focus:ring-1 focus:ring-blue-500/10 focus:outline-none transition-all placeholder-slate-400"
-              />
-            </div>
+            <span className="absolute top-[17px] left-3 text-white/40">
+              <Lock className="h-4 w-4" />
+            </span>
+            <input
+              type="password"
+              value={password}
+              onFocus={() => setPasswordFocused(true)}
+              onBlur={() => setPasswordFocused(false)}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={(passwordFocused || password) ? "••••••••" : ""}
+              className="w-full pl-9 pr-4 py-2.5 glass-input text-sm text-white/90 placeholder:text-white/25 focus:outline-none"
+            />
           </div>
 
           {/* Remember & Forgot Row */}
           <div className="flex items-center justify-between text-xs font-bold pt-1">
-            <label className="flex items-center text-slate-655 cursor-pointer dark:text-slate-400">
+            <label className="flex items-center text-white/60 cursor-pointer hover:text-white transition-colors">
               <input 
                 type="checkbox" 
-                className="mr-1.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-950" 
+                className="mr-1.5 h-4 w-4 rounded border-white/10 bg-slate-950 text-[#6366F1] focus:ring-[#6366F1]/50" 
               />
               Remember me
             </label>
-            <a href="#" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+            <a href="#" className="text-[#6366F1] hover:text-[#8B5CF6] transition-colors">
               Forgot password?
             </a>
           </div>
@@ -151,7 +191,7 @@ export default function Login({ onLogin }) {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white py-3.5 font-bold shadow-md shadow-blue-500/10 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 transition-all pt-3.5"
+            className="w-full flex items-center justify-center gap-2 rounded-xl btn-glow py-3.5 font-bold disabled:opacity-50 transition-all cursor-pointer"
           >
             {isLoading ? 'Signing In...' : 'Sign In'}
           </button>
@@ -159,10 +199,10 @@ export default function Login({ onLogin }) {
 
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+            <div className="w-full border-t border-white/5" />
           </div>
-          <div className="relative flex justify-center text-xs uppercase font-bold text-slate-400">
-            <span className="bg-white px-3 dark:bg-slate-900">Or continue with</span>
+          <div className="relative flex justify-center text-xs uppercase font-bold text-white/30">
+            <span className="bg-[#0D0D1A] px-3">Or continue with</span>
           </div>
         </div>
 
@@ -172,7 +212,7 @@ export default function Login({ onLogin }) {
             onLogin({ name: 'Google Creator', email: 'google@creator.io', initials: 'GC' });
             navigate('/analyse');
           }}
-          className="w-full flex items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:scale-[1.01] active:scale-[0.99] dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 transition-all shadow-sm"
+          className="w-full flex items-center justify-center gap-2.5 rounded-xl btn-glass px-4 py-2.5 text-sm font-semibold hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer shadow-sm"
         >
           <svg className="h-4.5 w-4.5 shrink-0" viewBox="0 0 24 24">
             <path
@@ -195,14 +235,14 @@ export default function Login({ onLogin }) {
           <span>Continue with Google</span>
         </button>
 
-        <div className="text-center text-xs font-bold text-slate-500 mt-8">
+        <div className="text-center text-xs font-bold text-white/40 mt-8">
           Don't have an account?{' '}
-          <Link to="/signup" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+          <Link to="/signup" className="text-[#6366F1] hover:text-[#8B5CF6] transition-colors">
             Sign Up
           </Link>
         </div>
 
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
